@@ -1,0 +1,313 @@
+/* ---------------------------------------------------------------- Tokens */
+:root {
+  --grund: #060709;
+  --flaeche: #0d0f14;
+  --flaeche-hoch: #12151c;
+  --rand: #1a1d27;
+  --rand-stark: #2a2f3d;
+  --akzent: #00e5ff;
+  --gefahr: #ff3b5c;
+
+  --text: #e8ecf2;
+  --text-leise: #8b93a3;
+  --text-still: #5c6472;
+
+  --schrift: 'DM Sans', system-ui, sans-serif;
+  --schrift-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 10px;
+  --tippziel: 48px;
+  --dauer: 280ms;
+  --kurve: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* README Nr. 22: Der Zoomfortschritt ist EINE animierbare Variable.
+   Heute treibt eine Transition sie an, später kann es eine Geste sein —
+   ohne dass eine Komponente sich ändert. */
+@property --zoom-t {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: true;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #wurzel { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--grund);
+  color: var(--text);
+  font-family: var(--schrift);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+button { font: inherit; color: inherit; }
+
+/* ------------------------------------------------------------ Zoomfläche */
+.zoomflaeche {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.zoomflaeche__schicht {
+  padding: 20px 16px 64px;
+  transform-origin: var(--ursprung-x, 50%) var(--ursprung-y, 40%);
+  will-change: transform, opacity;
+}
+
+/* Die abgehende Schicht liegt über der ankommenden und wird ausgeblendet. */
+.zoomflaeche__schicht--alt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Hinein: alte Schicht wächst über den Rand, neue kommt aus der Kachel.
+   Heraus ist exakt invers (README Nr. 19) — dieselben Zahlen, getauschte
+   Rollen, kein zweiter Satz Werte. */
+.hinein .zoomflaeche__schicht--alt {
+  transform: scale(calc(1 + 0.4 * var(--zoom-t)));
+  opacity: calc(1 - var(--zoom-t));
+}
+.hinein .zoomflaeche__schicht--neu {
+  transform: scale(calc(0.62 + 0.38 * var(--zoom-t)));
+  opacity: var(--zoom-t);
+}
+.heraus .zoomflaeche__schicht--alt {
+  transform: scale(calc(1 - 0.38 * var(--zoom-t)));
+  opacity: calc(1 - var(--zoom-t));
+}
+.heraus .zoomflaeche__schicht--neu {
+  transform: scale(calc(1.4 - 0.4 * var(--zoom-t)));
+  opacity: var(--zoom-t);
+}
+.sprung .zoomflaeche__schicht--alt { opacity: calc(1 - var(--zoom-t)); }
+.sprung .zoomflaeche__schicht--neu { opacity: var(--zoom-t); }
+
+.zoomflaeche--laeuft { transition: --zoom-t var(--dauer) var(--kurve); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hinein .zoomflaeche__schicht--alt,
+  .hinein .zoomflaeche__schicht--neu,
+  .heraus .zoomflaeche__schicht--alt,
+  .heraus .zoomflaeche__schicht--neu {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------- Brotkrume */
+.brotkrume {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+
+.brotkrume__glied {
+  background: none;
+  border: 0;
+  padding: 6px 4px;
+  color: var(--text-still);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.brotkrume__glied:hover { color: var(--akzent); }
+.brotkrume__glied[aria-current='page'] { color: var(--text-leise); cursor: default; }
+.brotkrume__trenner { color: var(--rand-stark); }
+
+/* ----------------------------------------------------------------- Kopf */
+.kopf { margin-bottom: 22px; }
+
+.kopf__titel {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.kopf__kurz {
+  margin: 4px 0 0;
+  color: var(--text-leise);
+  font-size: 15px;
+}
+
+/* Steckbrief — die Darstellung des Knotens selbst (README Nr. 5). */
+.steckbrief {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 16px;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
+.steckbrief dt { color: var(--text-still); }
+.steckbrief dd { margin: 0; font-family: var(--schrift-mono); }
+
+/* --------------------------------------------------------------- Filter */
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter__knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: 999px;
+  color: var(--text-leise);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filter__knopf[aria-pressed='true'] {
+  border-color: var(--akzent);
+  color: var(--text);
+}
+
+.marke {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--akzent);
+  flex: none;
+}
+.marke--voll { background: var(--akzent); }
+.marke--hohl { background: transparent; }
+
+/* -------------------------------------------------------------- Kacheln */
+.raster {
+  display: grid;
+  grid-template-columns: repeat(var(--spalten, 2), 1fr);
+  gap: 10px;
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: var(--tippziel);
+  padding: 16px;
+  text-align: left;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 140ms ease-out, background 140ms ease-out;
+}
+
+.kachel:hover { border-color: var(--rand-stark); background: var(--flaeche-hoch); }
+.kachel:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+
+.kachel__kopf { display: flex; align-items: center; gap: 8px; }
+.kachel__titel { font-weight: 500; letter-spacing: -0.01em; }
+.kachel__kurz { color: var(--text-still); font-size: 13px; line-height: 1.45; }
+
+.kachel--erklaerung {
+  border-style: dashed;
+  border-color: var(--rand-stark);
+  background: transparent;
+}
+
+/* --------------------------------------------------------------- Inhalt */
+.inhalt { max-width: 68ch; }
+.inhalt__text { margin: 0 0 16px; color: var(--text); }
+
+.inhalt__punkte {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.inhalt__punkte li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--text-leise);
+  font-size: 15px;
+}
+
+.inhalt__punkte li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--akzent);
+}
+
+/* Codebox bleibt in beiden Themes dunkel. */
+.codebox {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  background: #05060a;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  font-family: var(--schrift-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cfd6e4;
+}
+
+.hinweis {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-left: 2px solid var(--gefahr);
+  background: rgba(255, 59, 92, 0.06);
+  font-size: 14px;
+  color: var(--text-leise);
+}
+
+.overlay-marke {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--rand-stark);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--text-still);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------------------------------------------------------------- Fußnote */
+.tastaturhinweis {
+  margin-top: 28px;
+  color: var(--text-still);
+  font-size: 12px;
+}
+
+.tastaturhinweis kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--rand-stark);
+  border-radius: 4px;
+  font-family: var(--schrift-mono);
+  font-size: 11px;
+}
+
+@media (min-width: 620px) {
+  .zoomflaeche__schicht { padding: 32px 32px 80px; }
+  .raster { --spalten: 3; }
+  .kopf__titel { font-size: 38px; }
+}
