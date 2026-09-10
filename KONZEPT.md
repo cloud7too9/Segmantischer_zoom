@@ -2,8 +2,8 @@
 
 Ein Zoomable User Interface mit semantischem Zoom für strukturiertes IT-Wissen. Ausgangspunkt und erstes Universum ist das Themengebiet Datenbanken.
 
-**Status:** Konzeptphase — Entwurf steht, kein Code
-**Typ:** Konzept-README (die volle Struktur nach README-Grundstandard v1.0 folgt mit der Implementierung)
+**Status:** Umgesetzt — zwei Universen: Datenbanken und Linux-Server
+**Typ:** Konzept-README (Idee, Modell und Regelwerk; Stand der Umsetzung siehe `README.md`)
 
 ---
 
@@ -86,6 +86,52 @@ Der Kern wird immer gerendert, das Overlay des aktuellen Universums darunter. Ei
 
 ---
 
+## Das zweite Universum: Linux-Server
+
+Regel Nr. 23 sagt, dass sich der Facettenkern erst am zweiten Gebiet zeigt.
+Das ist eingelöst: Neben den Datenbanken steht das Universum Linux-Server —
+und es ist absichtlich so weit vom ersten entfernt wie möglich, weil ein
+zweites Datenbankgebiet nichts bewiesen hätte.
+
+Vier Ebenen, drei Achsen unter dem Universum:
+
+```
+Ebene 1   Universum       Linux-Server
+Ebene 2   cluster         die Wurzelverzeichnisse, nach Zweck gebündelt
+Ebene 3   verzeichnis     ein Unterverzeichnis daraus
+Ebene 4   datei           das Informationsblatt: Zweck, Format, Beispiel
+```
+
+Drei Entscheidungen fielen dabei an, alle drei aus dem Regelwerk:
+
+**Cluster statt Wurzelverzeichnisse.** Der FHS kennt achtzehn davon, Regel
+Nr. 2 erlaubt neun. Sie werden deshalb nach Zweck gebündelt — /bin, /sbin
+und /lib liegen bei /usr, weil sie dorthin zeigen; /proc bei /sys, weil
+beides Sichten des Kernels sind. Die Bündelung ist vollständig und
+überschneidungsfrei, sonst wäre sie eine Auswahl und keine Ordnung.
+
+**Dauerhaft und flüchtig werden Farbe, nicht Ebene.** Ob ein Pfad den
+Neustart überlebt, ist die wichtigste Eigenschaft im Betrieb — und trotzdem
+keine Zoomstufe (Regel Nr. 6). Man navigiert nicht danach, man erkennt sie.
+Die Unterscheidung ist zudem positiv formuliert, nicht als „alles, was
+nicht dauerhaft ist".
+
+**Das Facettenschema wird zur Rubrik.** Im Universum Datenbanken sind die
+Facetten eine eigene Zoomebene. Hier sind sie es nicht — sie sind die feste
+Gliederung jedes Informationsblatts: Zweck, Format, Beispielinhalt,
+Einordnung, Sicherheit, Betrieb. Das war der eigentliche Test von Regel
+Nr. 10: Das Schema hängt am Universum, und was der Renderer daraus macht,
+darf sich unterscheiden, solange es je Universum gleich bleibt. Die drei
+Facetten mit `imKern` tragen dieselben Kennungen wie im ersten Universum —
+das ist die Naht, an der die globale Suche später bündeln wird.
+
+Was der zweite Anlauf am Kern verändert hat, ist wenig: eine Knotenart
+`blatt` für die Referenzebene und ein Feld `erstbesuchGruppe` am Universum,
+damit die Vorbelegung des Filters nicht im Renderer steht. Der
+Ebenen-Renderer selbst blieb unberührt.
+
+---
+
 ## Bewusste Nicht-Ziele
 
 - **Kontinuierlicher Zoom über alle Ebenen.** Datenbanken haben keine natürliche räumliche Ordnung; das räumliche Gedächtnis, das Kontinuität einbringt, zahlt sich hier nicht aus. Ein kontinuierlicher Übergang zwischen zwei benachbarten Ebenen bleibt als spätere Option offen (siehe Regel 22).
@@ -103,7 +149,8 @@ Der Kern wird immer gerendert, das Overlay des aktuellen Universums darunter. Ei
 4. Übergangsanimation
 5. Farbcodierung und Filter auf der Typenebene
 6. Suchindex und Palette
-7. Zweites Universum als Belastungstest des Facettenkerns
+7. ~~Zweites Universum als Belastungstest des Facettenkerns~~ — umgesetzt,
+   siehe oben
 
 ## Voraussetzungen, Installation, Build, Nutzung, Abhängigkeiten
 

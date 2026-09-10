@@ -19,8 +19,19 @@ export interface Inhalt {
   readonly warnung?: string
 }
 
-/** Rolle eines Knotens auf seiner Ebene — steuert nur die Darbietung. */
-export type Knotenart = 'kategorie' | 'traeger' | 'facette' | 'konzept' | 'erklaerung'
+/**
+ * Rolle eines Knotens auf seiner Ebene — steuert nur die Darbietung.
+ * Die Liste ist universumsübergreifend: 'traeger' ist im Universum
+ * Datenbanken ein DBMS, im Universum Linux-Server ein Verzeichnis.
+ * 'blatt' ist die Referenzebene — dort steht keine Prosa mehr (Nr. 21).
+ */
+export type Knotenart =
+  | 'kategorie'
+  | 'traeger'
+  | 'facette'
+  | 'konzept'
+  | 'blatt'
+  | 'erklaerung'
 
 export interface Knoten {
   readonly id: string
@@ -74,4 +85,10 @@ export interface Universum {
   readonly facetten: readonly Facette[]
   /** Sekundärachse für Farbe und Filter statt für eine eigene Ebene (Nr. 6). */
   readonly gruppen?: readonly Gruppe[]
+  /**
+   * Gruppe, die beim allerersten Besuch dieses Universums vorbelegt ist.
+   * Steht am Universum, nicht im Renderer — sonst müsste die Zoomfläche
+   * Universumskennungen kennen (README Nr. 10).
+   */
+  readonly erstbesuchGruppe?: string
 }

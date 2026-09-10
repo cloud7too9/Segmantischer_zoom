@@ -1,13 +1,15 @@
 {
   "name": "wissensmatrix",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "probe": "esbuild proben/baum.probe.ts --bundle --platform=node --format=esm --outfile=node_modules/.probe.mjs --log-level=error && node node_modules/.probe.mjs",
+    "probe": "npm run probe:datenbanken && npm run probe:linux",
+    "probe:datenbanken": "esbuild proben/baum.probe.ts --bundle --platform=node --format=esm --outfile=node_modules/.probe-datenbanken.mjs --log-level=error && node node_modules/.probe-datenbanken.mjs",
+    "probe:linux": "esbuild proben/linux.probe.ts --bundle --platform=node --format=esm --outfile=node_modules/.probe-linux.mjs --log-level=error && node node_modules/.probe-linux.mjs",
     "pruefe": "npm run probe && npm run build"
   },
   "dependencies": {
