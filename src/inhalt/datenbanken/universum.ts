@@ -20,6 +20,9 @@ export const datenbanken: Universum = {
     { id: 'nosql', titel: 'Nicht-relational (NoSQL)', marke: 'hohl' },
   ],
 
+  // Beim allerersten Besuch ist die vertraute Zweiteilung vorbelegt.
+  erstbesuchGruppe: 'sql',
+
   // README Nr. 9/10: gilt für jeden Träger dieses Universums.
   // imKern = gebietsübergreifend, trägt später die globale Bündelung.
   facetten: [

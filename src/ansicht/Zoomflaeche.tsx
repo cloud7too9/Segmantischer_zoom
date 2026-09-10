@@ -13,7 +13,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ladeEbene, bereiteVor, type Ebenendaten } from '../kern/laden'
 import { heraus, hinein, type Ort } from '../kern/pfad'
 import { useOrt, letzteRichtungLesen, type Richtung } from '../kern/route'
-import type { Knoten } from '../kern/typen'
+import type { Knoten, Universum } from '../kern/typen'
 import { Ebene } from './Ebene'
 
 const DAUER = 280
@@ -47,8 +47,9 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
   const letzterOrt = useRef<Ort | null>(null)
   const letzterUrsprung = useRef({ x: '50%', y: '30%' })
 
-  // Wurzel auf das einzige Universum umlenken — der Renderer bekommt
-  // dadurch trotzdem keine Sonderbehandlung (README Nr. 17).
+  // Wurzel auf das Start-Universum umlenken — der Renderer bekommt
+  // dadurch keine Sonderbehandlung (README Nr. 17). Zwischen Universen
+  // wechselt man auf deren eigener Ebene, nicht über eine Ebene darüber.
   useEffect(() => {
     if (!ort.universum) ersetze(startOrt)
   }, [ort.universum, ersetze, startOrt])
@@ -149,7 +150,9 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
           daten={daten}
           aufHinein={beiHinein}
           aufSprung={beiSprung}
-          filterVorbelegt={ort.werte.length === 0 ? erstbesuchFilter() : undefined}
+          filterVorbelegt={
+            ort.werte.length === 0 ? erstbesuchFilter(daten.universum) : undefined
+          }
         />
       </div>
     </div>
@@ -157,15 +160,21 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
 }
 
 /**
- * Beim allerersten Besuch ist die vertraute Zweiteilung vorbelegt —
- * ein guter Lerneinstieg, der danach nie wieder stört. Anders als eine
- * Zoomebene, durch die man dauerhaft hindurchmüsste.
+ * Beim allerersten Besuch eines Universums ist dessen vertrauteste
+ * Zweiteilung vorbelegt — ein guter Lerneinstieg, der danach nie wieder
+ * stört. Anders als eine Zoomebene, durch die man dauerhaft hindurchmüsste.
+ *
+ * Welche Gruppe das ist, weiß das Universum (README Nr. 10). Der Merker
+ * hängt an dessen Kennung, sonst verschluckt das erste Universum die
+ * Vorbelegung aller weiteren.
  */
-function erstbesuchFilter(): string | undefined {
+function erstbesuchFilter(universum: Universum): string | undefined {
+  if (!universum.erstbesuchGruppe) return undefined
   try {
-    if (localStorage.getItem('matrix.besucht')) return undefined
-    localStorage.setItem('matrix.besucht', '1')
-    return 'sql'
+    const schluessel = 'matrix.besucht.' + universum.id
+    if (localStorage.getItem(schluessel)) return undefined
+    localStorage.setItem(schluessel, '1')
+    return universum.erstbesuchGruppe
   } catch {
     return undefined
   }

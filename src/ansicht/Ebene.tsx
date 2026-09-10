@@ -10,6 +10,7 @@
 import { useMemo, useState } from 'react'
 import type { Ebenendaten } from '../kern/laden'
 import { ahnen, sichtbarerInhalt } from '../kern/baum'
+import { alleUniversen } from '../kern/registry'
 import type { Knoten } from '../kern/typen'
 import type { Ort } from '../kern/pfad'
 import { Brotkrume } from './Brotkrume'
@@ -41,6 +42,15 @@ export function Ebene({
   const zeigeFilter =
     (universum.gruppen?.length ?? 0) > 0 && kinder.some((k) => k.gruppe)
 
+  /**
+   * Der Wechsel zwischen Universen ist ein Sprung zur Seite, keine Ebene
+   * darüber: Ebene 1 bleibt das Universum selbst. Deshalb steht die Wahl
+   * nur dort, wo man ohnehin ganz oben ist — und sieht aus wie der Filter,
+   * weil sie dasselbe tut: die Menge einschränken, nicht hineinzoomen.
+   */
+  const universen = useMemo(() => alleUniversen(), [])
+  const zeigeUniversumswahl = ort.werte.length === 0 && universen.length > 1
+
   const inhalt = knoten ? sichtbarerInhalt(knoten, universum.id) : undefined
 
   return (
@@ -70,6 +80,22 @@ export function Ebene({
             <Inhaltsblock inhalt={inhalt.overlay} marke={universum.titel} />
           )}
         </>
+      )}
+
+      {zeigeUniversumswahl && (
+        <div className="filter" role="group" aria-label="Universum wechseln">
+          {universen.map((u) => (
+            <button
+              key={u.id}
+              type="button"
+              className="filter__knopf"
+              aria-pressed={u.id === universum.id}
+              onClick={() => aufSprung({ universum: u.id, werte: [] })}
+            >
+              {u.titel}
+            </button>
+          ))}
+        </div>
       )}
 
       {zeigeFilter && universum.gruppen && (
