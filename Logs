@@ -1,0 +1,17 @@
+MindHub – Entscheidungs-Log
+
+Entscheidungs-ID: MH-DEC-001
+Zeitstempel: 2026-09-20
+Status: Entschieden
+
+Entscheidung
+
+Kontrollierte Laufzeit-Erweiterbarkeit
+
+* Laufzeit-Erweiterbarkeit braucht Grenzen. Nutzer dürfen Wissen erweitern, aber nicht das gesamte Datenmodell beliebig verändern.
+* Dafür wird ein kontrolliertes Vokabular verwendet, das über Dropdowns auswählbar ist.
+* Das Vokabular selbst ist Daten und nicht fest im Programmcode hinterlegt.
+* Jeder Vokabular-Eintrag besitzt eine stabile ID. Das sichtbare Label kann später geändert werden.
+* Neue Optionen können hinzugefügt werden, ohne bestehende Wissensdaten zu verändern.
+* Vokabularwerte werden bevorzugt deaktiviert statt gelöscht. Bestehende Daten bleiben dadurch gültig.
+* Größere strukturelle Änderungen am Vokabular können über Migrationen behandelt werden.
