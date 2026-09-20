@@ -1,0 +1,42 @@
+# Netlify-Konfiguration (vorübergehendes Hosting)
+# Alles Host-spezifische steht nur in dieser Datei. Beim Umzug auf einen
+# anderen Server entfällt sie, die Header-Regeln wandern in dessen Konfiguration.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA-Fallback für den History-API-Router.
+# Ohne force greift die Regel nur, wenn keine echte Datei existiert.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Service Worker: nie dauerhaft cachen, sonst kommen Updates nicht an.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Einstiegsseite: immer neu validieren, damit neue Builds sofort greifen.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Manifest: richtiger Content-Type, immer neu validieren.
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Vite-Assets tragen Hashes im Namen und dürfen ewig gecacht werden.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
