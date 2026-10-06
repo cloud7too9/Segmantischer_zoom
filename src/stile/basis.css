@@ -128,7 +128,9 @@ button { font: inherit; color: inherit; }
 .brotkrume__trenner { color: var(--rand-stark); }
 
 /* ----------------------------------------------------------------- Kopf */
-.kopf { margin-bottom: 22px; }
+/* Die Lesebreite liegt am Kopf, nicht am Steckbrief: `ch` bemisst sich an der
+   Schrift des Elements, und der Steckbrief ist kleiner gesetzt als der Text. */
+.kopf { max-width: var(--textbreite); margin-bottom: 22px; }
 
 .kopf__titel {
   margin: 0;
