@@ -336,11 +336,15 @@ button { font: inherit; color: inherit; }
 .knopf--akzent { border-color: var(--akzent); color: var(--akzent); }
 .knopf--gefahr { border-color: var(--gefahr); color: var(--gefahr); }
 
-.knopf--schwebend {
+.werkzeuge {
   position: fixed;
   right: 16px;
   bottom: 16px;
   z-index: 5;
+  display: flex;
+  gap: 8px;
+}
+.werkzeuge .knopf {
   min-height: var(--tippziel);
   padding: 0 20px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
@@ -443,4 +447,123 @@ button { font: inherit; color: inherit; }
 
 @media (min-width: 900px) {
   .zoomflaeche--bearbeitung { --rand-rechts: 472px; }
+}
+
+/* ----------------------------------------------------------- Wörterbuch */
+.woerterbuch {
+  padding: 20px var(--rand-x) 64px;
+  max-width: 1200px;
+}
+
+.woerterbuch__kopf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.woerterbuch__spalten { display: grid; gap: 28px; }
+
+.suche {
+  width: 100%;
+  min-height: 40px;
+  margin-bottom: 10px;
+  padding: 7px 12px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand-stark);
+  border-radius: 999px;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+.suche:focus-visible { outline: 2px solid var(--akzent); outline-offset: 1px; }
+
+.eintraege {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.eintrag {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  width: 100%;
+  min-height: var(--tippziel);
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.eintrag:hover { border-color: var(--rand-stark); background: var(--flaeche-hoch); }
+.eintrag:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+.eintrag--aktiv { border-color: var(--akzent); }
+.eintrag--aus .eintrag__wort { color: var(--text-still); text-decoration: line-through; }
+.eintrag__wort { font-weight: 500; }
+.eintrag__meta { grid-column: 1 / 3; color: var(--text-still); font-size: 12px; }
+
+.abzeichen {
+  align-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--rand-stark);
+  font-size: 11px;
+  color: var(--text-leise);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.abzeichen--begriff { border-color: var(--akzent); color: var(--akzent); }
+.abzeichen--themengebiet { border-style: dashed; }
+
+.woerterbuch__formular .bearbeitung__titel { margin-top: 0; }
+.sicherung { margin-top: 18px; }
+.sicherung label { display: inline-flex; align-items: center; cursor: pointer; }
+
+/* Erkennungsprobe: eine Hervorhebung je Art (docs/verweise/03). Form plus
+   Farbe, damit die Arten auch ohne Farbsehen auseinanderzuhalten sind. */
+.probe {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rand);
+  max-width: var(--textbreite);
+}
+.probe__eingabe {
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--grund);
+  border: 1px solid var(--rand-stark);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+.probe__ausgabe { margin: 0 0 10px; line-height: 1.9; }
+.probe__legende { margin: 0; color: var(--text-still); font-size: 12px; }
+
+.erkannt {
+  padding: 1px 3px;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+}
+.erkannt--begriff {
+  text-decoration: underline;
+  text-decoration-color: var(--akzent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.erkannt--themengebiet {
+  border: 1px dashed var(--text-leise);
+}
+
+@media (min-width: 900px) {
+  .woerterbuch { padding-top: 32px; }
+  .woerterbuch__spalten { grid-template-columns: minmax(260px, 1fr) minmax(360px, 1.3fr); }
 }

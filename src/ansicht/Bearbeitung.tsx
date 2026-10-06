@@ -18,6 +18,7 @@ import {
   holeKnoten,
 } from '../kern/registry'
 import type { Inhalt, Knoten, Knotenart, Universum } from '../kern/typen'
+import { kennung } from '../kern/kennung'
 
 const ARTEN: readonly { id: Knotenart; titel: string }[] = [
   { id: 'kategorie', titel: 'Kategorie' },
@@ -74,18 +75,6 @@ function textZuSteckbrief(text: string): Knoten['steckbrief'] {
       return i < 0 ? [z, ''] : [z.slice(0, i).trim(), z.slice(i + 1).trim()]
     })
   return zeilen.length ? zeilen : undefined
-}
-
-/** „Relationale DB" -> „relationale-db"; ergibt stabile IDs und Pfadsegmente. */
-export function kennung(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/ä/g, 'ae')
-    .replace(/ö/g, 'oe')
-    .replace(/ü/g, 'ue')
-    .replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
 
 function fehlertext(e: unknown): string {

@@ -20,11 +20,12 @@ import {
   verwerfeLaufzeitaenderungen,
   wissensStand,
 } from '../src/kern/registry'
-import { exportiereAenderungen, gedaechtnisSpeicher, importiereAenderungen, verbindeSpeicher } from '../src/kern/speicher'
+import { exportiereAenderungen, gedaechtnisSpeicher, importiereAenderungen, verbindeSpeicher, verbindeWoerterbuchSpeicher } from '../src/kern/speicher'
+import { alleEintraege, ergaenzeWoerterbuch, leereWoerterbuch } from '../src/kern/woerterbuch'
 import { datenbanken, datenbankKnoten } from '../src/inhalt/datenbanken'
 import { kinder, knotenAmOrt, sichtbarerInhalt } from '../src/kern/baum'
 import { ladeEbene } from '../src/kern/laden'
-import type { Knoten, Universum } from '../src/kern/typen'
+import type { Knoten, Universum, Woerterbucheintrag } from '../src/kern/typen'
 
 registriereUniversum(datenbanken)
 registriereKnoten(...datenbankKnoten)
@@ -135,7 +136,7 @@ pruefe('Import: Universum und Knoten', ladeEbene({ universum: 'netzwerke', werte
 wirft('Import mit falschem Format', () => importiereAenderungen('{"format":99}'), 'Format')
 
 verwerfeLaufzeitaenderungen()
-const speicher = gedaechtnisSpeicher()
+const speicher = gedaechtnisSpeicher<ReturnType<typeof laufzeitAenderungen>>()
 speicher.speichere(a)
 const trennen = verbindeSpeicher(speicher)
 pruefe('Verbinden lädt den Speicher', holeKnoten('mysql')?.titel, 'MySQL')
@@ -144,6 +145,26 @@ pruefe('Jede Änderung wird zurückgeschrieben', speicher.lade()?.knoten.find((k
 trennen()
 aendereKnoten('mysql', { titel: 'MySQL 9' })
 pruefe('Nach Trennen nicht mehr', speicher.lade()?.knoten.find((k) => k.id === 'mysql')?.titel, 'MySQL 8')
+
+// --- Wörterbuch: Speicher und Sicherung ---------------------------------------
+const wbSpeicher = gedaechtnisSpeicher<readonly Woerterbucheintrag[]>()
+wbSpeicher.speichere([{ id: 'begriff-index', art: 'begriff', wort: 'Index', lemma: 'index', wortart: 'nomen', definition: 'Zugriffsstruktur.' }])
+const wbTrennen = verbindeWoerterbuchSpeicher(wbSpeicher)
+pruefe('Wörterbuch aus Speicher geladen', alleEintraege().map((e) => e.id), ['begriff-index'])
+ergaenzeWoerterbuch({ id: 'themengebiet-netzwerke', art: 'themengebiet', wort: 'Netzwerk', lemma: 'netzwerk', wortart: 'nomen', definition: 'Themengebiet.', universum: 'netzwerke' })
+pruefe('Wörterbuch wird zurückgeschrieben', wbSpeicher.lade()?.length, 2)
+wirft('Themengebiet mit unbekanntem Universum', () => ergaenzeWoerterbuch({ id: 'x', art: 'themengebiet', wort: 'Mars', lemma: 'mars', wortart: 'nomen', definition: 'x', universum: 'mars' }), 'Universum „mars"')
+wirft('Eintrag ohne Definition', () => ergaenzeWoerterbuch({ id: 'y', art: 'begriff', wort: 'Y', lemma: 'y', wortart: 'nomen', definition: '' }), 'Definition')
+wbTrennen()
+
+const sicherung2 = exportiereAenderungen()
+pruefe('Sicherung enthält beide Teile', Object.keys(JSON.parse(sicherung2)).sort(), ['aenderungen', 'format', 'woerterbuch'])
+leereWoerterbuch()
+verwerfeLaufzeitaenderungen()
+importiereAenderungen(sicherung2)
+pruefe('Import stellt das Wörterbuch wieder her', alleEintraege().length, 2)
+pruefe('Import stellt den Wissensbestand wieder her', holeKnoten('mysql')?.titel, 'MySQL 9')
+pruefe('Format 1 ohne Wörterbuch bleibt lesbar', (() => { importiereAenderungen(JSON.stringify({ format: 1, aenderungen: { universen: [], knoten: [] } })); return alleEintraege().length })(), 2)
 
 console.log(fehler === 0 ? '\nAlle Proben bestanden.' : `\n${fehler} Probe(n) fehlgeschlagen.`)
 process.exit(fehler === 0 ? 0 : 1)

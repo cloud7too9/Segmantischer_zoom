@@ -9,6 +9,7 @@
 import { useSyncExternalStore } from 'react'
 import type { Ort } from './pfad'
 import { abonniereWissen, holeUniversum, wissensStand } from './registry'
+import { abonniereWoerterbuch, woerterbuchStand } from './woerterbuch'
 import { kinder, knotenAmOrt } from './baum'
 import type { Knoten, Universum } from './typen'
 
@@ -46,4 +47,8 @@ export function bereiteVor(ort: Ort): void {
  */
 export function useWissensStand(): number {
   return useSyncExternalStore(abonniereWissen, wissensStand, wissensStand)
+}
+
+export function useWoerterbuchStand(): number {
+  return useSyncExternalStore(abonniereWoerterbuch, woerterbuchStand, woerterbuchStand)
 }

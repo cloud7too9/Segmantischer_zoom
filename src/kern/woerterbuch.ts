@@ -8,7 +8,8 @@
  * Rendern läuft, wirkt ein neuer Eintrag sofort in allen bestehenden Texten
  * (docs/verweise/02).
  */
-import type { Woerterbucheintrag } from './typen'
+import type { Woerterbucheintrag, Wortart } from './typen'
+import { holeUniversum } from './registry'
 
 const eintraege = new Map<string, Woerterbucheintrag>()
 const abonnenten = new Set<() => void>()
@@ -19,13 +20,37 @@ function melde(): void {
   for (const a of abonnenten) a()
 }
 
+export const WORTARTEN: readonly Wortart[] = ['nomen', 'adjektiv', 'verb', 'eigenname']
+
+/** Mängel eines Eintrags; leer = gültig. */
+export function pruefeEintrag(e: Woerterbucheintrag): string[] {
+  const maengel: string[] = []
+  if (!e.id?.trim()) maengel.push('Eintrag braucht eine ID.')
+  if (!e.wort?.trim()) maengel.push(`Eintrag „${e.id}" braucht ein Wort.`)
+  if (!e.lemma?.trim()) maengel.push(`Eintrag „${e.id}" braucht ein Lemma.`)
+  if (!WORTARTEN.includes(e.wortart)) maengel.push(`Eintrag „${e.id}": unbekannte Wortart „${e.wortart}".`)
+  if (!e.definition?.trim()) maengel.push(`Eintrag „${e.id}" braucht eine Definition.`)
+  if (e.art === 'themengebiet') {
+    if (!e.universum) maengel.push(`Themengebiet „${e.id}" braucht ein Ziel-Universum.`)
+    else if (!holeUniversum(e.universum)) maengel.push(`Themengebiet „${e.id}": Universum „${e.universum}" ist unbekannt.`)
+  } else if ((e as { art: string }).art !== 'begriff') {
+    maengel.push(`Eintrag „${e.id}": unbekannte Art.`)
+  }
+  return maengel
+}
+
+function wirfBeiMaengeln(maengel: string[]): void {
+  if (maengel.length) throw new Error(maengel.join('\n'))
+}
+
 /**
  * Erweiterungsfunktion zur Laufzeit: legt Einträge an oder ersetzt sie.
  * Gleiche ID = derselbe Eintrag (MH-DEC-001: die ID ist stabil, das
- * sichtbare Wort darf sich ändern).
+ * sichtbare Wort darf sich ändern). Alle werden erst geprüft, dann übernommen.
  */
 export function ergaenzeWoerterbuch(...liste: readonly Woerterbucheintrag[]): void {
   if (liste.length === 0) return
+  wirfBeiMaengeln(liste.flatMap(pruefeEintrag))
   for (const e of liste) eintraege.set(e.id, e)
   melde()
 }
@@ -37,7 +62,9 @@ export function aendereEintrag(
 ): boolean {
   const alt = eintraege.get(id)
   if (!alt) return false
-  eintraege.set(id, { ...alt, ...aenderung } as Woerterbucheintrag)
+  const neu = { ...alt, ...aenderung } as Woerterbucheintrag
+  wirfBeiMaengeln(pruefeEintrag(neu))
+  eintraege.set(id, neu)
   melde()
   return true
 }
@@ -78,6 +105,14 @@ export function abonniereWoerterbuch(hoerer: () => void): () => void {
   return () => {
     abonnenten.delete(hoerer)
   }
+}
+
+/** Ersetzt den gesamten Bestand — für den Speicher und den Import. */
+export function uebernehmeWoerterbuch(liste: readonly Woerterbucheintrag[]): void {
+  wirfBeiMaengeln(liste.flatMap(pruefeEintrag))
+  eintraege.clear()
+  for (const e of liste) eintraege.set(e.id, e)
+  melde()
 }
 
 /** Für Proben: alles verwerfen. */

@@ -151,13 +151,18 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
       {bearbeiten ? (
         <Bearbeitung daten={daten} aufSchliessen={() => setBearbeiten(false)} />
       ) : (
-        <button
-          type="button"
-          className="knopf knopf--schwebend"
-          onClick={() => setBearbeiten(true)}
-        >
-          Bearbeiten
-        </button>
+        <div className="werkzeuge">
+          <button
+            type="button"
+            className="knopf"
+            onClick={() => gehe({ universum: 'woerterbuch', werte: [] }, 'sprung')}
+          >
+            Wörterbuch
+          </button>
+          <button type="button" className="knopf knopf--akzent" onClick={() => setBearbeiten(true)}>
+            Bearbeiten
+          </button>
+        </div>
       )}
       {uebergang && (
         <div

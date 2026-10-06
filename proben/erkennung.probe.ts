@@ -5,6 +5,9 @@
  */
 import { erkenne, erkannteVerweise, setzeLemmatisierer, einfacherLemmatisierer } from '../src/kern/erkennung'
 import { aendereEintrag, deaktiviereEintrag, ergaenzeWoerterbuch, leereWoerterbuch } from '../src/kern/woerterbuch'
+import { registriereUniversum } from '../src/kern/registry'
+
+registriereUniversum({ id: 'netzwerke', titel: 'Netzwerke', kurz: '', achsen: ['schicht'], facetten: [] })
 
 let fehler = 0
 function pruefe(name: string, ist: unknown, soll: unknown) {
