@@ -6,8 +6,9 @@
  * daraus — und der Prefetch für einen späteren kontinuierlichen Übergang
  * hängt sich an dieselbe Stelle, ohne dass eine Komponente sich ändert.
  */
+import { useSyncExternalStore } from 'react'
 import type { Ort } from './pfad'
-import { holeUniversum } from './registry'
+import { abonniereWissen, holeUniversum, wissensStand } from './registry'
 import { kinder, knotenAmOrt } from './baum'
 import type { Knoten, Universum } from './typen'
 
@@ -22,7 +23,7 @@ export interface Ebenendaten {
 export function ladeEbene(ort: Ort): Ebenendaten | undefined {
   if (!ort.universum) return undefined
   const universum = holeUniversum(ort.universum)
-  if (!universum) return undefined
+  if (!universum || universum.deaktiviert) return undefined
   return {
     ort,
     universum,
@@ -37,4 +38,12 @@ export function ladeEbene(ort: Ort): Ebenendaten | undefined {
  */
 export function bereiteVor(ort: Ort): void {
   void ladeEbene(ort)
+}
+
+/**
+ * Lässt eine Komponente bei jeder Laufzeitänderung des Wissensbestands
+ * neu rendern. Rückgabe ist der Stand — als Abhängigkeit für Memos nutzbar.
+ */
+export function useWissensStand(): number {
+  return useSyncExternalStore(abonniereWissen, wissensStand, wissensStand)
 }

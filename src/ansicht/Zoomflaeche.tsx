@@ -10,7 +10,7 @@
  * Schritt 1 vor Schritt 3 ist die Regel "der Übergang wartet nie auf Daten".
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ladeEbene, bereiteVor, type Ebenendaten } from '../kern/laden'
+import { ladeEbene, bereiteVor, useWissensStand, type Ebenendaten } from '../kern/laden'
 import { heraus, hinein, type Ort } from '../kern/pfad'
 import { useOrt, letzteRichtungLesen, type Richtung } from '../kern/route'
 import type { Knoten } from '../kern/typen'
@@ -53,6 +53,8 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
     if (!ort.universum) ersetze(startOrt)
   }, [ort.universum, ersetze, startOrt])
 
+  // Ein zur Laufzeit ergänzter Knoten erscheint sofort (README Nr. 30).
+  useWissensStand()
   const daten = ladeEbene(ort)
 
   useLayoutEffect(() => {

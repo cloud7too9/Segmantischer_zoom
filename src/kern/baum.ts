@@ -12,7 +12,7 @@
  * nicht MongoDB, das denselben Wert nur mittraegt.
  */
 import type { Knoten, Universum } from './typen'
-import { alleKnoten } from './registry'
+import { aktiveKnoten } from './registry'
 import type { Ort } from './pfad'
 
 /** Wie viele Achsen sind ueberhaupt gesetzt — reihenfolgeunabhaengig. */
@@ -37,7 +37,7 @@ export function kinder(ort: Ort, u: Universum): Knoten[] {
   if (!achse) return []
 
   const nachWert = new Map<string, Knoten>()
-  for (const k of alleKnoten()) {
+  for (const k of aktiveKnoten()) {
     if (!passtZuOrt(k, u, ort)) continue
     const wert = k.koordinate[achse]
     if (wert === undefined) continue
@@ -54,7 +54,7 @@ export function kinder(ort: Ort, u: Universum): Knoten[] {
 export function knotenAmOrt(ort: Ort, u: Universum): Knoten | undefined {
   if (ort.werte.length === 0) return undefined
   let treffer: Knoten | undefined
-  for (const k of alleKnoten()) {
+  for (const k of aktiveKnoten()) {
     if (!passtZuOrt(k, u, ort)) continue
     treffer = treffer ? sparsamer(treffer, k, u) : k
   }

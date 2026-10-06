@@ -39,6 +39,8 @@ export interface Knoten {
   readonly overlays?: Readonly<Record<string, Inhalt>>
   /** Steckbrief-Zeilen — die Darstellung des Knotens selbst (README Nr. 5). */
   readonly steckbrief?: readonly (readonly [string, string])[]
+  /** MH-DEC-001: deaktivieren statt löschen. Deaktivierte Knoten erscheinen nicht im Baum. */
+  readonly deaktiviert?: boolean
 }
 
 export interface Facette {
@@ -74,6 +76,8 @@ export interface Universum {
   readonly facetten: readonly Facette[]
   /** Sekundärachse für Farbe und Filter statt für eine eigene Ebene (Nr. 6). */
   readonly gruppen?: readonly Gruppe[]
+  /** MH-DEC-001: deaktivieren statt löschen. */
+  readonly deaktiviert?: boolean
 }
 
 // ---------------------------------------------------------------------------
