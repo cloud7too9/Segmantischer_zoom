@@ -12,7 +12,7 @@
  * nicht MongoDB, das denselben Wert nur mittraegt.
  */
 import type { Knoten, Universum } from './typen'
-import { aktiveKnoten } from './registry'
+import { aktiveKnoten, alleKnoten } from './registry'
 import type { Ort } from './pfad'
 
 /** Wie viele Achsen sind ueberhaupt gesetzt — reihenfolgeunabhaengig. */
@@ -56,6 +56,21 @@ export function knotenAmOrt(ort: Ort, u: Universum): Knoten | undefined {
   let treffer: Knoten | undefined
   for (const k of aktiveKnoten()) {
     if (!passtZuOrt(k, u, ort)) continue
+    treffer = treffer ? sparsamer(treffer, k, u) : k
+  }
+  return treffer
+}
+
+/**
+ * Ein deaktivierter Knoten genau an diesem Ort — für die Bearbeitung, damit
+ * Deaktiviertes wieder aktiviert werden kann (MH-DEC-001). Im Baum
+ * erscheint er nicht.
+ */
+export function deaktivierterKnotenAmOrt(ort: Ort, u: Universum): Knoten | undefined {
+  if (ort.werte.length === 0) return undefined
+  let treffer: Knoten | undefined
+  for (const k of alleKnoten()) {
+    if (!k.deaktiviert || !passtZuOrt(k, u, ort)) continue
     treffer = treffer ? sparsamer(treffer, k, u) : k
   }
   return treffer

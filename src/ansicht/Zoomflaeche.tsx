@@ -15,6 +15,7 @@ import { heraus, hinein, type Ort } from '../kern/pfad'
 import { useOrt, letzteRichtungLesen, type Richtung } from '../kern/route'
 import type { Knoten } from '../kern/typen'
 import { Ebene } from './Ebene'
+import { Bearbeitung } from './Bearbeitung'
 
 const DAUER = 280
 const SPALTEN_SCHMAL = 2
@@ -44,6 +45,7 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
   const { ort, gehe, ersetze } = useOrt()
   const [uebergang, setUebergang] = useState<Uebergang | null>(null)
   const [laeuft, setLaeuft] = useState(false)
+  const [bearbeiten, setBearbeiten] = useState(false)
   const letzterOrt = useRef<Ort | null>(null)
   const letzterUrsprung = useRef({ x: '50%', y: '30%' })
 
@@ -92,6 +94,8 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
   useEffect(() => {
     function beiTaste(e: KeyboardEvent) {
       if (e.key !== 'Escape') return
+      // In der Bearbeitungsleiste gehört Esc dem Formular, nicht dem Zoom.
+      if (e.target instanceof Element && e.target.closest('.bearbeitung')) return
       const ziel = heraus(ort)
       if (ziel && ziel.universum) {
         letzterUrsprung.current = { x: '50%', y: '30%' }
@@ -130,10 +134,24 @@ export function Zoomflaeche({ startOrt }: { startOrt: Ort }) {
   return (
     <div
       className={
-        'zoomflaeche ' + richtung + (laeuft ? ' zoomflaeche--laeuft' : '')
+        'zoomflaeche ' +
+        richtung +
+        (laeuft ? ' zoomflaeche--laeuft' : '') +
+        (bearbeiten ? ' zoomflaeche--bearbeitung' : '')
       }
       style={stil}
     >
+      {bearbeiten ? (
+        <Bearbeitung daten={daten} aufSchliessen={() => setBearbeiten(false)} />
+      ) : (
+        <button
+          type="button"
+          className="knopf knopf--schwebend"
+          onClick={() => setBearbeiten(true)}
+        >
+          Bearbeiten
+        </button>
+      )}
       {uebergang && (
         <div
           className="zoomflaeche__schicht zoomflaeche__schicht--alt"
