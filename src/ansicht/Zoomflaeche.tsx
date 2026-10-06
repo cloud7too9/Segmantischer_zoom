@@ -21,7 +21,13 @@ const DAUER = 280
 const SPALTEN_SCHMAL = 2
 const SPALTEN_BREIT = 3
 
-/** Deklarativer Zoom-Ursprung aus der Rasterposition (README Nr. 22). */
+/**
+ * Deklarativer Zoom-Ursprung aus der Rasterposition (README Nr. 22).
+ * Das Raster ist auf die Lesebreite begrenzt und beginnt am linken Rand;
+ * der Ursprung rechnet deshalb mit derselben Breite wie das Stylesheet
+ * (--textbreite, --rand-x) statt mit der vollen Schichtbreite — gemessen
+ * wird nichts.
+ */
 function ursprungAusSpalte(index: number): { x: string; y: string } {
   const spalten =
     typeof window !== 'undefined' && window.innerWidth >= 620
@@ -29,8 +35,9 @@ function ursprungAusSpalte(index: number): { x: string; y: string } {
       : SPALTEN_SCHMAL
   const spalte = index % spalten
   const reihe = Math.floor(index / spalten)
+  const anteil = (spalte + 0.5) / spalten
   return {
-    x: `${((spalte + 0.5) / spalten) * 100}%`,
+    x: `calc(var(--rand-x) + ${anteil} * min(var(--textbreite), 100% - var(--rand-x) - var(--rand-rechts)))`,
     y: `${Math.min(20 + reihe * 14, 80)}%`,
   }
 }

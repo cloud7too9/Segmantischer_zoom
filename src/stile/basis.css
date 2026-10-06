@@ -17,6 +17,10 @@
 
   --radius: 10px;
   --tippziel: 48px;
+  /* Eine Lesebreite für Text UND Kacheln: das Raster wächst nicht über den Text hinaus. */
+  --textbreite: 68ch;
+  --rand-x: 16px;
+  --rand-rechts: var(--rand-x);
   --dauer: 280ms;
   --kurve: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -55,7 +59,7 @@ button { font: inherit; color: inherit; }
 }
 
 .zoomflaeche__schicht {
-  padding: 20px 16px 64px;
+  padding: 20px var(--rand-rechts) 64px var(--rand-x);
   transform-origin: var(--ursprung-x, 50%) var(--ursprung-y, 40%);
   will-change: transform, opacity;
 }
@@ -197,6 +201,7 @@ button { font: inherit; color: inherit; }
   display: grid;
   grid-template-columns: repeat(var(--spalten, 2), 1fr);
   gap: 10px;
+  max-width: var(--textbreite);
 }
 
 .kachel {
@@ -227,7 +232,7 @@ button { font: inherit; color: inherit; }
 }
 
 /* --------------------------------------------------------------- Inhalt */
-.inhalt { max-width: 68ch; }
+.inhalt { max-width: var(--textbreite); }
 .inhalt__text { margin: 0 0 16px; color: var(--text); }
 
 .inhalt__punkte {
@@ -307,7 +312,8 @@ button { font: inherit; color: inherit; }
 }
 
 @media (min-width: 620px) {
-  .zoomflaeche__schicht { padding: 32px 32px 80px; }
+  :root { --rand-x: 32px; }
+  .zoomflaeche__schicht { padding-top: 32px; padding-bottom: 80px; }
   .raster { --spalten: 3; }
   .kopf__titel { font-size: 38px; }
 }
@@ -434,5 +440,5 @@ button { font: inherit; color: inherit; }
 }
 
 @media (min-width: 900px) {
-  .zoomflaeche--bearbeitung .zoomflaeche__schicht { padding-right: 472px; }
+  .zoomflaeche--bearbeitung { --rand-rechts: 472px; }
 }
